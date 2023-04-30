@@ -1,0 +1,14 @@
+node_modules
+.env
+/.idea
+/coverage
+/e2e-results/
+/playwright-report/
+/playwright/.cache/
+/.mailing
+
+# build artifacts
+/.cache
+/public/build
+/build
+server.js

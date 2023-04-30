@@ -1,0 +1,16 @@
+node_modules
+
+/.cache
+/server/build
+/public/build
+/build
+/server.js
+
+/.idea
+/.env
+/coverage
+/e2e-results/
+/playwright-report/
+/playwright/.cache/
+/.eslintcache
+.mailing
