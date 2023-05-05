@@ -2,8 +2,9 @@ import path from "node:path";
 import express from "express";
 import compression from "compression";
 import morgan from "morgan";
+import { broadcastDevReady } from "@remix-run/node";
+import { createRequestHandler } from "@remix-run/express";
 
-import { createRequestHandler } from "./remix-express";
 import { Measurer } from "./server-timing-measurer";
 
 const app = express();
@@ -23,8 +24,13 @@ app.all(
 			purgeRequireCache();
 		}
 
+		const build = require("./build");
+		if (process.env.NODE_ENV === "development") {
+			broadcastDevReady(build);
+		}
+
 		return createRequestHandler({
-			build: require("./build"),
+			build,
 			mode: process.env.NODE_ENV,
 			getLoadContext() {
 				return { measurer: new Measurer() };
@@ -35,8 +41,12 @@ app.all(
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
-	require("./build"); // preload the build so we're ready for the first request
+	const build = require("./build"); // preload the build so we're ready for the first request
 	console.info(`Server listening on port ${port}`);
+
+	if (process.env.NODE_ENV === "development") {
+		broadcastDevReady(build);
+	}
 });
 
 const buildDir = path.join(process.cwd(), "build");
