@@ -2,7 +2,9 @@ import path from "node:path";
 import express from "express";
 import compression from "compression";
 import morgan from "morgan";
-import { createRequestHandler } from "@remix-run/express";
+
+import { createRequestHandler } from "./remix-express";
+import { Measurer } from "./server-timing-measurer";
 
 const app = express();
 
@@ -14,19 +16,22 @@ app.use(express.static("public", { immutable: true, maxAge: "1y" }));
 
 app.use(morgan("tiny"));
 
-app.all("*", (req, res, next) => {
-	if (process.env.NODE_ENV !== "production") {
-		purgeRequireCache();
-	}
-
-	return createRequestHandler({
-		build: require("./build"),
-		mode: process.env.NODE_ENV,
-		getLoadContext() {
-			// TODO
+app.all(
+	"*",
+	(req, res, next) => {
+		if (process.env.NODE_ENV !== "production") {
+			purgeRequireCache();
 		}
-	})(req, res, next);
-});
+
+		return createRequestHandler({
+			build: require("./build"),
+			mode: process.env.NODE_ENV,
+			getLoadContext() {
+				return { measurer: new Measurer() };
+			},
+		})(req, res, next);
+	},
+);
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {

@@ -4,7 +4,6 @@
 module.exports = {
 	// ignore all files in routes folder to prevent
 	// default remix convention from picking up routes
-	ignoredRouteFiles: ["**/*"],
 	future: {
 		unstable_dev: {
 			port: 8002,
